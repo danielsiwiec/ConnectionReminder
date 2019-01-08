@@ -14,8 +14,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
+import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 
 public class SwipeListUtils {
+
+    private static final String TAG = "SwipeListUtils";
 
     public static void setUpRecyclerView(RecyclerView mRecyclerView, AppCompatActivity activity) {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(activity));
@@ -29,12 +32,13 @@ public class SwipeListUtils {
      * This is the standard support library way of implementing "swipe to delete" feature. You can do custom drawing in onChildDraw method
      * but whatever you draw will disappear once the swipe is over, and while the items are animating to their new position the recycler view
      * background will be visible. That is rarely an desired effect.
+     *
      * @param mRecyclerView
      * @param activity
      */
     private static void setUpItemTouchHelper(final RecyclerView mRecyclerView, final AppCompatActivity activity) {
 
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, LEFT ) {
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, LEFT | RIGHT) {
 
             // we want to cache these and not allocate anything repeatedly in the onChildDraw method
             Drawable background;
@@ -59,7 +63,7 @@ public class SwipeListUtils {
             @Override
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 int position = viewHolder.getAdapterPosition();
-                TestAdapter testAdapter = (TestAdapter)recyclerView.getAdapter();
+                TestAdapter testAdapter = (TestAdapter) recyclerView.getAdapter();
                 if (testAdapter.isUndoOn() && testAdapter.isPendingRemoval(position)) {
                     return 0;
                 }
@@ -69,7 +73,7 @@ public class SwipeListUtils {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int swipedPosition = viewHolder.getAdapterPosition();
-                TestAdapter adapter = (TestAdapter)mRecyclerView.getAdapter();
+                TestAdapter adapter = (TestAdapter) mRecyclerView.getAdapter();
                 boolean undoOn = adapter.isUndoOn();
                 if (undoOn) {
                     adapter.pendingRemoval(swipedPosition);
@@ -92,24 +96,45 @@ public class SwipeListUtils {
                     init();
                 }
 
-                // draw red background
-                background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-                background.draw(c);
+                boolean leftSwipe = dX < 0;
 
-                // draw x mark
+                drawBackground(c, (int) dX, itemView, leftSwipe);
+
+                addXMark(itemView, leftSwipe, c);
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }
+
+            private void drawBackground(Canvas c, int dX, View itemView, boolean leftSwipe) {
+                if (leftSwipe) {
+                    background.setBounds(itemView.getRight() + dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                } else {
+                    background.setBounds(itemView.getLeft() + dX, itemView.getTop(), itemView.getLeft(), itemView.getBottom());
+                }
+                background.draw(c);
+            }
+
+            private void addXMark(View itemView, boolean leftSwipe, Canvas c) {
                 int itemHeight = itemView.getBottom() - itemView.getTop();
                 int intrinsicWidth = xMark.getIntrinsicWidth();
                 int intrinsicHeight = xMark.getIntrinsicWidth();
 
-                int xMarkLeft = itemView.getRight() - xMarkMargin - intrinsicWidth;
-                int xMarkRight = itemView.getRight() - xMarkMargin;
-                int xMarkTop = itemView.getTop() + (itemHeight - intrinsicHeight)/2;
+                int xMarkLeft;
+                int xMarkRight;
+
+                if (leftSwipe) {
+                    xMarkLeft = itemView.getRight() - xMarkMargin - intrinsicWidth;
+                    xMarkRight = itemView.getRight() - xMarkMargin;
+                } else {
+                    xMarkLeft = itemView.getLeft() + xMarkMargin;
+                    xMarkRight = itemView.getLeft() + xMarkMargin + intrinsicWidth;
+                }
+
+                int xMarkTop = itemView.getTop() + (itemHeight - intrinsicHeight) / 2;
                 int xMarkBottom = xMarkTop + intrinsicHeight;
                 xMark.setBounds(xMarkLeft, xMarkTop, xMarkRight, xMarkBottom);
 
                 xMark.draw(c);
-
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
 
         };
@@ -120,6 +145,7 @@ public class SwipeListUtils {
     /**
      * We're gonna setup another ItemDecorator that will draw the red background in the empty space while the items are animating to thier new positions
      * after an item is removed.
+     *
      * @param mRecyclerView
      */
     private static void setUpAnimationDecoratorHelper(RecyclerView mRecyclerView) {
