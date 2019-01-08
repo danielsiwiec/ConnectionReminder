@@ -4,12 +4,14 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
+import java.util.function.BiConsumer;
+
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ItemTouchCallbackFactory {
 
-    public static ItemTouchHelper create(final TestAdapter adapter, final int swipeDirections, final Drawable background, final Drawable icon, final int iconMargin) {
+    public static ItemTouchHelper create(BiConsumer<RecyclerView.ViewHolder, TestAdapter> onSwipe, final TestAdapter adapter, final int swipeDirections, final Drawable background, final Drawable icon, final int iconMargin) {
         return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, swipeDirections) {
 
             // not important, we don't want drag & drop
@@ -30,13 +32,7 @@ public class ItemTouchCallbackFactory {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                int swipedPosition = viewHolder.getAdapterPosition();
-                boolean undoOn = adapter.isUndoOn();
-                if (undoOn) {
-                    adapter.pendingRemoval(swipedPosition);
-                } else {
-                    adapter.remove(swipedPosition);
-                }
+                onSwipe.accept(viewHolder, adapter);
             }
 
             @Override

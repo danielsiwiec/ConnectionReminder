@@ -6,6 +6,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
+import java.util.function.BiConsumer;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -39,8 +41,18 @@ public class SwipeListUtils {
 
         int iconMargin = (int) activity.getResources().getDimension(R.dimen.ic_margin);
 
-        ItemTouchHelper rightTouchHelper = ItemTouchCallbackFactory.create((TestAdapter) mRecyclerView.getAdapter(), RIGHT, new ColorDrawable(Color.RED), ContextCompat.getDrawable(activity, R.drawable.ic_clear_24dp), iconMargin);
-        ItemTouchHelper leftTouchHelper = ItemTouchCallbackFactory.create((TestAdapter) mRecyclerView.getAdapter(), LEFT, new ColorDrawable(Color.GREEN), ContextCompat.getDrawable(activity, R.drawable.ic_check_24dp), iconMargin);
+        BiConsumer<RecyclerView.ViewHolder, TestAdapter> onSwipe = (RecyclerView.ViewHolder viewHolder, TestAdapter adapter) -> {
+            int swipedPosition = viewHolder.getAdapterPosition();
+            boolean undoOn = adapter.isUndoOn();
+            if (undoOn) {
+                adapter.pendingRemoval(swipedPosition);
+            } else {
+                adapter.remove(swipedPosition);
+            }
+        };
+
+        ItemTouchHelper rightTouchHelper = ItemTouchCallbackFactory.create(onSwipe, (TestAdapter) mRecyclerView.getAdapter(), RIGHT, new ColorDrawable(Color.RED), ContextCompat.getDrawable(activity, R.drawable.ic_clear_24dp), iconMargin);
+        ItemTouchHelper leftTouchHelper = ItemTouchCallbackFactory.create(onSwipe, (TestAdapter) mRecyclerView.getAdapter(), LEFT, new ColorDrawable(Color.GREEN), ContextCompat.getDrawable(activity, R.drawable.ic_check_24dp), iconMargin);
         rightTouchHelper.attachToRecyclerView(mRecyclerView);
         leftTouchHelper.attachToRecyclerView(mRecyclerView);
     }

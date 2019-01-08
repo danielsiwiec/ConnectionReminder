@@ -56,17 +56,14 @@ public class TestAdapter extends RecyclerView.Adapter {
             viewHolder.itemView.setBackgroundColor(Color.RED);
             viewHolder.titleTextView.setVisibility(View.GONE);
             viewHolder.undoButton.setVisibility(View.VISIBLE);
-            viewHolder.undoButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // user wants to undo the removal, let's cancel the pending task
-                    Runnable pendingRemovalRunnable = pendingRunnables.get(item);
-                    pendingRunnables.remove(item);
-                    if (pendingRemovalRunnable != null) handler.removeCallbacks(pendingRemovalRunnable);
-                    itemsPendingRemoval.remove(item);
-                    // this will rebind the row in "normal" state
-                    notifyItemChanged(items.indexOf(item));
-                }
+            viewHolder.undoButton.setOnClickListener(v -> {
+                // user wants to undo the removal, let's cancel the pending task
+                Runnable pendingRemovalRunnable = pendingRunnables.get(item);
+                pendingRunnables.remove(item);
+                if (pendingRemovalRunnable != null) handler.removeCallbacks(pendingRemovalRunnable);
+                itemsPendingRemoval.remove(item);
+                // this will rebind the row in "normal" state
+                notifyItemChanged(items.indexOf(item));
             });
         } else {
             // we need to show the "normal" state
@@ -111,12 +108,7 @@ public class TestAdapter extends RecyclerView.Adapter {
             // this will redraw row in "undo" state
             notifyItemChanged(position);
             // let's create, store and post a runnable to remove the item
-            Runnable pendingRemovalRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    remove(items.indexOf(item));
-                }
-            };
+            Runnable pendingRemovalRunnable = () -> remove(items.indexOf(item));
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
             pendingRunnables.put(item, pendingRemovalRunnable);
         }
@@ -148,8 +140,8 @@ public class TestAdapter extends RecyclerView.Adapter {
 
         public TestViewHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(R.layout.row_view, parent, false));
-            titleTextView = (TextView) itemView.findViewById(R.id.title_text_view);
-            undoButton = (Button) itemView.findViewById(R.id.undo_button);
+            titleTextView = itemView.findViewById(R.id.title_text_view);
+            undoButton = itemView.findViewById(R.id.undo_button);
         }
 
     }
