@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
 import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
+import static com.dansiwiec.connectionremider.ItemTouchBuilder.itemTouchBuilder;
 
 public class SwipeListUtils {
 
@@ -34,25 +35,27 @@ public class SwipeListUtils {
 
         int iconMargin = (int) activity.getResources().getDimension(R.dimen.ic_margin);
 
-        Consumer<RecyclerView.ViewHolder> onSwipe = (RecyclerView.ViewHolder viewHolder) -> {
+        Consumer<RecyclerView.ViewHolder> deleteItem = (RecyclerView.ViewHolder viewHolder) -> {
             int swipedPosition = viewHolder.getAdapterPosition();
             TestAdapter adapter = (TestAdapter) mRecyclerView.getAdapter();
             adapter.pendingRemoval(swipedPosition);
         };
 
-        ItemTouchHelper rightTouchHelper = ItemTouchFactory.create(
-                onSwipe,
-                RIGHT,
-                Color.RED,
-                ContextCompat.getDrawable(activity, R.drawable.ic_clear_24dp),
-                iconMargin);
+        ItemTouchHelper rightTouchHelper = itemTouchBuilder()
+                .onSwipe(deleteItem)
+                .backgroundColor(Color.RED)
+                .swipeDirections(RIGHT)
+                .icon(ContextCompat.getDrawable(activity, R.drawable.ic_clear_24dp))
+                .iconMargin(iconMargin)
+                .build();
 
-        ItemTouchHelper leftTouchHelper = ItemTouchFactory.create(
-                onSwipe,
-                LEFT,
-                Color.GREEN,
-                ContextCompat.getDrawable(activity, R.drawable.ic_check_24dp),
-                iconMargin);
+        ItemTouchHelper leftTouchHelper = itemTouchBuilder()
+                .onSwipe(deleteItem)
+                .backgroundColor(Color.GREEN)
+                .swipeDirections(LEFT)
+                .icon(ContextCompat.getDrawable(activity, R.drawable.ic_check_24dp))
+                .iconMargin(iconMargin)
+                .build();
 
         rightTouchHelper.attachToRecyclerView(mRecyclerView);
         leftTouchHelper.attachToRecyclerView(mRecyclerView);

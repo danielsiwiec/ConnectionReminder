@@ -10,10 +10,46 @@ import java.util.function.Consumer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class ItemTouchFactory {
+public class ItemTouchBuilder {
 
-    public static ItemTouchHelper create(Consumer<RecyclerView.ViewHolder> onSwipe, final int swipeDirections, final int backgroundColor, final Drawable icon, final int iconMargin) {
-        ColorDrawable background = new ColorDrawable(backgroundColor);
+    private Consumer<RecyclerView.ViewHolder> onSwipe;
+    private int swipeDirections;
+    private Drawable icon;
+    private int iconMargin;
+    private ColorDrawable background;
+
+    private ItemTouchBuilder() {}
+
+    public static ItemTouchBuilder itemTouchBuilder() {
+        return new ItemTouchBuilder();
+    }
+
+    public ItemTouchBuilder onSwipe(Consumer<RecyclerView.ViewHolder> onSwipe) {
+        this.onSwipe = onSwipe;
+        return this;
+    }
+
+    public ItemTouchBuilder swipeDirections(int swipeDirections) {
+        this.swipeDirections = swipeDirections;
+        return this;
+    }
+
+    public ItemTouchBuilder backgroundColor(int backgroundColor) {
+        this.background = new ColorDrawable(backgroundColor);
+        return this;
+    }
+
+    public ItemTouchBuilder icon(Drawable icon) {
+        this.icon = icon;
+        return this;
+    }
+
+    public ItemTouchBuilder iconMargin(int iconMargin) {
+        this.iconMargin = iconMargin;
+        return this;
+    }
+
+    public ItemTouchHelper build() {
         return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, swipeDirections) {
 
             // not important, we don't want drag & drop
