@@ -9,7 +9,7 @@ import java.util.function.BiConsumer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class ItemTouchCallbackFactory {
+public class ItemTouchFactory {
 
     public static ItemTouchHelper create(BiConsumer<RecyclerView.ViewHolder, TestAdapter> onSwipe, final TestAdapter adapter, final int swipeDirections, final Drawable background, final Drawable icon, final int iconMargin) {
         return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, swipeDirections) {

@@ -51,8 +51,21 @@ public class SwipeListUtils {
             }
         };
 
-        ItemTouchHelper rightTouchHelper = ItemTouchCallbackFactory.create(onSwipe, (TestAdapter) mRecyclerView.getAdapter(), RIGHT, new ColorDrawable(Color.RED), ContextCompat.getDrawable(activity, R.drawable.ic_clear_24dp), iconMargin);
-        ItemTouchHelper leftTouchHelper = ItemTouchCallbackFactory.create(onSwipe, (TestAdapter) mRecyclerView.getAdapter(), LEFT, new ColorDrawable(Color.GREEN), ContextCompat.getDrawable(activity, R.drawable.ic_check_24dp), iconMargin);
+        ItemTouchHelper rightTouchHelper = ItemTouchFactory.create(
+                onSwipe,
+                (TestAdapter) mRecyclerView.getAdapter(),
+                RIGHT,
+                new ColorDrawable(Color.RED),
+                ContextCompat.getDrawable(activity, R.drawable.ic_clear_24dp),
+                iconMargin);
+
+        ItemTouchHelper leftTouchHelper = ItemTouchFactory.create(
+                onSwipe, (TestAdapter) mRecyclerView.getAdapter(),
+                LEFT,
+                new ColorDrawable(Color.GREEN),
+                ContextCompat.getDrawable(activity, R.drawable.ic_check_24dp),
+                iconMargin);
+
         rightTouchHelper.attachToRecyclerView(mRecyclerView);
         leftTouchHelper.attachToRecyclerView(mRecyclerView);
     }
