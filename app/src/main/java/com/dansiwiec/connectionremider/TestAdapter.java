@@ -118,6 +118,11 @@ public class TestAdapter extends RecyclerView.Adapter {
         }
     }
 
+    public void addItem(String person) {
+        items.add(person);
+        notifyItemInserted(items.size() - 1);
+    }
+
     /**
      * ViewHolder capable of presenting two states: "normal" and "undo" state.
      */
