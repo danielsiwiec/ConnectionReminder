@@ -1,38 +1,16 @@
 package com.dansiwiec.connectionremider;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
-import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
-
 public class ItemTouchCallbackFactory {
 
-    public static ItemTouchHelper.SimpleCallback create(final AppCompatActivity activity, final TestAdapter adapter) {
-        return new ItemTouchHelper.SimpleCallback(0, LEFT | RIGHT) {
-
-            // we want to cache these and not allocate anything repeatedly in the onChildDraw method
-            Drawable background;
-            Drawable xMark;
-            int xMarkMargin;
-            boolean initiated;
-
-            private void init() {
-                background = new ColorDrawable(Color.RED);
-                xMark = ContextCompat.getDrawable(activity, R.drawable.ic_clear_24dp);
-                xMark.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-                xMarkMargin = (int) activity.getResources().getDimension(R.dimen.ic_clear_margin);
-                initiated = true;
-            }
+    public static ItemTouchHelper.SimpleCallback create(final TestAdapter adapter, final int swipeDirections, final Drawable background, final Drawable icon, final int iconMargin) {
+        return new ItemTouchHelper.SimpleCallback(0, swipeDirections) {
 
             // not important, we don't want drag & drop
             @Override
@@ -71,15 +49,11 @@ public class ItemTouchCallbackFactory {
                     return;
                 }
 
-                if (!initiated) {
-                    init();
-                }
-
                 boolean leftSwipe = dX < 0;
 
                 drawBackground(c, (int) dX, itemView, leftSwipe);
 
-                addXMark(itemView, leftSwipe, c);
+                addIcon(itemView, leftSwipe, c);
 
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
@@ -93,27 +67,27 @@ public class ItemTouchCallbackFactory {
                 background.draw(c);
             }
 
-            private void addXMark(View itemView, boolean leftSwipe, Canvas c) {
+            private void addIcon(View itemView, boolean leftSwipe, Canvas c) {
                 int itemHeight = itemView.getBottom() - itemView.getTop();
-                int intrinsicWidth = xMark.getIntrinsicWidth();
-                int intrinsicHeight = xMark.getIntrinsicWidth();
+                int intrinsicWidth = icon.getIntrinsicWidth();
+                int intrinsicHeight = icon.getIntrinsicWidth();
 
-                int xMarkLeft;
-                int xMarkRight;
+                int iconLeft;
+                int iconRight;
 
                 if (leftSwipe) {
-                    xMarkLeft = itemView.getRight() - xMarkMargin - intrinsicWidth;
-                    xMarkRight = itemView.getRight() - xMarkMargin;
+                    iconLeft = itemView.getRight() - iconMargin - intrinsicWidth;
+                    iconRight = itemView.getRight() - iconMargin;
                 } else {
-                    xMarkLeft = itemView.getLeft() + xMarkMargin;
-                    xMarkRight = itemView.getLeft() + xMarkMargin + intrinsicWidth;
+                    iconLeft = itemView.getLeft() + iconMargin;
+                    iconRight = itemView.getLeft() + iconMargin + intrinsicWidth;
                 }
 
                 int xMarkTop = itemView.getTop() + (itemHeight - intrinsicHeight) / 2;
                 int xMarkBottom = xMarkTop + intrinsicHeight;
-                xMark.setBounds(xMarkLeft, xMarkTop, xMarkRight, xMarkBottom);
+                icon.setBounds(iconLeft, xMarkTop, iconRight, xMarkBottom);
 
-                xMark.draw(c);
+                icon.draw(c);
             }
 
         };

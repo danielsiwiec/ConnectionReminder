@@ -38,7 +38,12 @@ public class SwipeListUtils {
      */
     private static void setUpItemTouchHelper(final RecyclerView mRecyclerView, final AppCompatActivity activity) {
 
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = ItemTouchCallbackFactory.create(activity, (TestAdapter) mRecyclerView.getAdapter());
+        Drawable background = new ColorDrawable(Color.RED);
+        Drawable xMark = ContextCompat.getDrawable(activity, R.drawable.ic_clear_24dp);
+        xMark.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        int xMarkMargin = (int) activity.getResources().getDimension(R.dimen.ic_clear_margin);;
+
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = ItemTouchCallbackFactory.create((TestAdapter) mRecyclerView.getAdapter(), LEFT | RIGHT, background, xMark, xMarkMargin);
         ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
