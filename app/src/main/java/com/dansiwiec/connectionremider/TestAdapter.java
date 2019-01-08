@@ -35,7 +35,7 @@ public class TestAdapter extends RecyclerView.Adapter {
         // let's generate some items
         lastInsertedIndex = 15;
         // this should give us a couple of screens worth
-        for (int i=1; i<= lastInsertedIndex; i++) {
+        for (int i = 1; i <= lastInsertedIndex; i++) {
             items.add("Item " + i);
         }
     }
@@ -47,7 +47,7 @@ public class TestAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        TestViewHolder viewHolder = (TestViewHolder)holder;
+        TestViewHolder viewHolder = (TestViewHolder) holder;
         final String item = items.get(position);
 
         if (itemsPendingRemoval.contains(item)) {
@@ -106,6 +106,16 @@ public class TestAdapter extends RecyclerView.Adapter {
     public boolean isPendingRemoval(int position) {
         String item = items.get(position);
         return itemsPendingRemoval.contains(item);
+    }
+
+    public void pushToBottom(int position) {
+        String item = items.get(position);
+        if (items.contains(item)) {
+            items.remove(position);
+            items.add(item);
+            notifyItemChanged(position);
+            notifyItemMoved(position, items.size() - 1);
+        }
     }
 
     /**

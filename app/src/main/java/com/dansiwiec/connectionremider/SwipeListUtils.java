@@ -41,6 +41,12 @@ public class SwipeListUtils {
             adapter.pendingRemoval(swipedPosition);
         };
 
+        Consumer<RecyclerView.ViewHolder> pushToBottom = (RecyclerView.ViewHolder viewHolder) -> {
+            int swipedPosition = viewHolder.getAdapterPosition();
+            TestAdapter adapter = (TestAdapter) mRecyclerView.getAdapter();
+            adapter.pushToBottom(swipedPosition);
+        };
+
         ItemTouchHelper rightTouchHelper = itemTouchBuilder()
                 .onSwipe(deleteItem)
                 .backgroundColor(Color.RED)
@@ -50,7 +56,7 @@ public class SwipeListUtils {
                 .build();
 
         ItemTouchHelper leftTouchHelper = itemTouchBuilder()
-                .onSwipe(deleteItem)
+                .onSwipe(pushToBottom)
                 .backgroundColor(Color.GREEN)
                 .swipeDirections(LEFT)
                 .icon(ContextCompat.getDrawable(activity, R.drawable.ic_check_24dp))
