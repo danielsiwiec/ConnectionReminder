@@ -25,7 +25,6 @@ public class TestAdapter extends RecyclerView.Adapter {
     List<String> items;
     List<String> itemsPendingRemoval;
     int lastInsertedIndex; // so we can add some more items for testing purposes
-    boolean undoOn; // is undo on, you can turn it on from the toolbar menu
 
     private Handler handler = new Handler(); // hanlder for running delayed runnables
     HashMap<String, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
@@ -78,27 +77,6 @@ public class TestAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemCount() {
         return items.size();
-    }
-
-    /**
-     *  Utility method to add some rows for testing purposes. You can add rows from the toolbar menu.
-     */
-    public void addItems(int howMany){
-        if (howMany > 0) {
-            for (int i = lastInsertedIndex + 1; i <= lastInsertedIndex + howMany; i++) {
-                items.add("Item " + i);
-                notifyItemInserted(items.size() - 1);
-            }
-            lastInsertedIndex = lastInsertedIndex + howMany;
-        }
-    }
-
-    public void setUndoOn(boolean undoOn) {
-        this.undoOn = undoOn;
-    }
-
-    public boolean isUndoOn() {
-        return undoOn;
     }
 
     public void pendingRemoval(int position) {

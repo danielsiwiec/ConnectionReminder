@@ -45,12 +45,7 @@ public class SwipeListUtils {
         Consumer<RecyclerView.ViewHolder> onSwipe = (RecyclerView.ViewHolder viewHolder) -> {
             int swipedPosition = viewHolder.getAdapterPosition();
             TestAdapter adapter = (TestAdapter) mRecyclerView.getAdapter();
-            boolean undoOn = adapter.isUndoOn();
-            if (undoOn) {
-                adapter.pendingRemoval(swipedPosition);
-            } else {
-                adapter.remove(swipedPosition);
-            }
+            adapter.pendingRemoval(swipedPosition);
         };
 
         ItemTouchHelper rightTouchHelper = ItemTouchFactory.create(

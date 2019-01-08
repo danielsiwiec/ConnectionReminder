@@ -26,7 +26,7 @@ public class ItemTouchFactory {
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 int position = viewHolder.getAdapterPosition();
                 TestAdapter testAdapter = (TestAdapter) recyclerView.getAdapter();
-                if (testAdapter.isUndoOn() && testAdapter.isPendingRemoval(position)) {
+                if (testAdapter.isPendingRemoval(position)) {
                     return 0;
                 }
                 return super.getSwipeDirs(recyclerView, viewHolder);
