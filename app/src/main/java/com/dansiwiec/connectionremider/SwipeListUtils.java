@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -41,8 +42,9 @@ public class SwipeListUtils {
 
         int iconMargin = (int) activity.getResources().getDimension(R.dimen.ic_margin);
 
-        BiConsumer<RecyclerView.ViewHolder, TestAdapter> onSwipe = (RecyclerView.ViewHolder viewHolder, TestAdapter adapter) -> {
+        Consumer<RecyclerView.ViewHolder> onSwipe = (RecyclerView.ViewHolder viewHolder) -> {
             int swipedPosition = viewHolder.getAdapterPosition();
+            TestAdapter adapter = (TestAdapter) mRecyclerView.getAdapter();
             boolean undoOn = adapter.isUndoOn();
             if (undoOn) {
                 adapter.pendingRemoval(swipedPosition);
@@ -53,16 +55,15 @@ public class SwipeListUtils {
 
         ItemTouchHelper rightTouchHelper = ItemTouchFactory.create(
                 onSwipe,
-                (TestAdapter) mRecyclerView.getAdapter(),
                 RIGHT,
-                new ColorDrawable(Color.RED),
+                Color.RED,
                 ContextCompat.getDrawable(activity, R.drawable.ic_clear_24dp),
                 iconMargin);
 
         ItemTouchHelper leftTouchHelper = ItemTouchFactory.create(
-                onSwipe, (TestAdapter) mRecyclerView.getAdapter(),
+                onSwipe,
                 LEFT,
-                new ColorDrawable(Color.GREEN),
+                Color.GREEN,
                 ContextCompat.getDrawable(activity, R.drawable.ic_check_24dp),
                 iconMargin);
 

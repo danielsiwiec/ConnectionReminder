@@ -1,17 +1,19 @@
 package com.dansiwiec.connectionremider;
 
 import android.graphics.Canvas;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ItemTouchFactory {
 
-    public static ItemTouchHelper create(BiConsumer<RecyclerView.ViewHolder, TestAdapter> onSwipe, final TestAdapter adapter, final int swipeDirections, final Drawable background, final Drawable icon, final int iconMargin) {
+    public static ItemTouchHelper create(Consumer<RecyclerView.ViewHolder> onSwipe, final int swipeDirections, final int backgroundColor, final Drawable icon, final int iconMargin) {
+        ColorDrawable background = new ColorDrawable(backgroundColor);
         return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, swipeDirections) {
 
             // not important, we don't want drag & drop
@@ -32,7 +34,7 @@ public class ItemTouchFactory {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                onSwipe.accept(viewHolder, adapter);
+                onSwipe.accept(viewHolder);
             }
 
             @Override
