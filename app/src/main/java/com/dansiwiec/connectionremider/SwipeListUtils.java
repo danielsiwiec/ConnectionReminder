@@ -1,13 +1,7 @@
 package com.dansiwiec.connectionremider;
 
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.view.View;
 
-import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,14 +15,11 @@ import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 
 public class SwipeListUtils {
 
-    private static final String TAG = "SwipeListUtils";
-
     public static void setUpRecyclerView(RecyclerView mRecyclerView, AppCompatActivity activity) {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(activity));
         mRecyclerView.setAdapter(new TestAdapter());
         mRecyclerView.setHasFixedSize(true);
         setUpItemTouchHelper(mRecyclerView, activity);
-        setUpAnimationDecoratorHelper(mRecyclerView);
     }
 
     /**
@@ -66,78 +57,5 @@ public class SwipeListUtils {
         rightTouchHelper.attachToRecyclerView(mRecyclerView);
         leftTouchHelper.attachToRecyclerView(mRecyclerView);
     }
-
-    /**
-     * We're gonna setup another ItemDecorator that will draw the red background in the empty space while the items are animating to thier new positions
-     * after an item is removed.
-     *
-     * @param mRecyclerView
-     */
-    private static void setUpAnimationDecoratorHelper(RecyclerView mRecyclerView) {
-        mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
-
-            // we want to cache this and not allocate anything repeatedly in the onDraw method
-            Drawable background;
-            boolean initiated;
-
-            private void init() {
-                background = new ColorDrawable(Color.RED);
-                initiated = true;
-            }
-
-            @Override
-            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-
-                if (!initiated) {
-                    init();
-                }
-
-                // only if animation is in progress
-                if (parent.getItemAnimator().isRunning()) {
-
-                    // some items might be animating down and some items might be animating up to close the gap left by the removed item
-                    // this is not exclusive, both movement can be happening at the same time
-                    // to reproduce this leave just enough items so the first one and the last one would be just a little off screen
-                    // then remove one from the middle
-
-                    // this is fixed
-                    int left = 0;
-                    int right = parent.getWidth();
-
-                    // this we need to find out
-                    int top = 0;
-                    int bottom = 0;
-
-                    // find first child with translationY > 0
-                    // and last one with translationY < 0
-                    // we're after a rect that is not covered in recycler-view views at this point in time
-                    // find relevant translating views
-                    Optional<View> lastViewComingDown = parent.getTouchables().stream().filter(child -> child.getTranslationY() < 0).findFirst();
-                    Optional<View> firstViewComingUp = parent.getTouchables().stream().filter(child -> child.getTranslationY() > 0).findFirst();
-
-                    if (lastViewComingDown.isPresent() && firstViewComingUp.isPresent()) {
-                        // views are coming down AND going up to fill the void
-                        top = lastViewComingDown.get().getBottom() + (int) lastViewComingDown.get().getTranslationY();
-                        bottom = firstViewComingUp.get().getTop() + (int) firstViewComingUp.get().getTranslationY();
-                    } else if (lastViewComingDown.isPresent()) {
-                        // views are going down to fill the void
-                        top = lastViewComingDown.get().getBottom() + (int) lastViewComingDown.get().getTranslationY();
-                        bottom = lastViewComingDown.get().getBottom();
-                    } else if (firstViewComingUp.isPresent()) {
-                        // views are coming up to fill the void
-                        top = firstViewComingUp.get().getTop();
-                        bottom = firstViewComingUp.get().getTop() + (int) firstViewComingUp.get().getTranslationY();
-                    }
-
-                    background.setBounds(left, top, right, bottom);
-                    background.draw(c);
-
-                }
-                super.onDraw(c, parent, state);
-            }
-
-        });
-    }
-
 
 }
