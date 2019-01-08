@@ -2,7 +2,6 @@ package com.dansiwiec.connectionremider;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -38,14 +37,12 @@ public class SwipeListUtils {
      */
     private static void setUpItemTouchHelper(final RecyclerView mRecyclerView, final AppCompatActivity activity) {
 
-        Drawable background = new ColorDrawable(Color.RED);
-        Drawable xMark = ContextCompat.getDrawable(activity, R.drawable.ic_clear_24dp);
-        xMark.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-        int xMarkMargin = (int) activity.getResources().getDimension(R.dimen.ic_clear_margin);;
+        int iconMargin = (int) activity.getResources().getDimension(R.dimen.ic_margin);
 
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = ItemTouchCallbackFactory.create((TestAdapter) mRecyclerView.getAdapter(), LEFT | RIGHT, background, xMark, xMarkMargin);
-        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
-        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
+        ItemTouchHelper rightTouchHelper = ItemTouchCallbackFactory.create((TestAdapter) mRecyclerView.getAdapter(), RIGHT, new ColorDrawable(Color.RED), ContextCompat.getDrawable(activity, R.drawable.ic_clear_24dp), iconMargin);
+        ItemTouchHelper leftTouchHelper = ItemTouchCallbackFactory.create((TestAdapter) mRecyclerView.getAdapter(), LEFT, new ColorDrawable(Color.GREEN), ContextCompat.getDrawable(activity, R.drawable.ic_check_24dp), iconMargin);
+        rightTouchHelper.attachToRecyclerView(mRecyclerView);
+        leftTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 
     /**

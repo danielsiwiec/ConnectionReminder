@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ItemTouchCallbackFactory {
 
-    public static ItemTouchHelper.SimpleCallback create(final TestAdapter adapter, final int swipeDirections, final Drawable background, final Drawable icon, final int iconMargin) {
-        return new ItemTouchHelper.SimpleCallback(0, swipeDirections) {
+    public static ItemTouchHelper create(final TestAdapter adapter, final int swipeDirections, final Drawable background, final Drawable icon, final int iconMargin) {
+        return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, swipeDirections) {
 
             // not important, we don't want drag & drop
             @Override
@@ -90,7 +90,6 @@ public class ItemTouchCallbackFactory {
                 icon.draw(c);
             }
 
-        };
-
+        });
     }
 }
