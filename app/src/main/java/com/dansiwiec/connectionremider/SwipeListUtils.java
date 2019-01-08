@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -99,12 +100,6 @@ public class SwipeListUtils {
                     // to reproduce this leave just enough items so the first one and the last one would be just a little off screen
                     // then remove one from the middle
 
-                    // find first child with translationY > 0
-                    // and last one with translationY < 0
-                    // we're after a rect that is not covered in recycler-view views at this point in time
-                    View lastViewComingDown = null;
-                    View firstViewComingUp = null;
-
                     // this is fixed
                     int left = 0;
                     int right = parent.getWidth();
@@ -113,33 +108,25 @@ public class SwipeListUtils {
                     int top = 0;
                     int bottom = 0;
 
+                    // find first child with translationY > 0
+                    // and last one with translationY < 0
+                    // we're after a rect that is not covered in recycler-view views at this point in time
                     // find relevant translating views
-                    int childCount = parent.getLayoutManager().getChildCount();
-                    for (int i = 0; i < childCount; i++) {
-                        View child = parent.getLayoutManager().getChildAt(i);
-                        if (child.getTranslationY() < 0) {
-                            // view is coming down
-                            lastViewComingDown = child;
-                        } else if (child.getTranslationY() > 0) {
-                            // view is coming up
-                            if (firstViewComingUp == null) {
-                                firstViewComingUp = child;
-                            }
-                        }
-                    }
+                    Optional<View> lastViewComingDown = parent.getTouchables().stream().filter(child -> child.getTranslationY() < 0).findFirst();
+                    Optional<View> firstViewComingUp = parent.getTouchables().stream().filter(child -> child.getTranslationY() > 0).findFirst();
 
-                    if (lastViewComingDown != null && firstViewComingUp != null) {
+                    if (lastViewComingDown.isPresent() && firstViewComingUp.isPresent()) {
                         // views are coming down AND going up to fill the void
-                        top = lastViewComingDown.getBottom() + (int) lastViewComingDown.getTranslationY();
-                        bottom = firstViewComingUp.getTop() + (int) firstViewComingUp.getTranslationY();
-                    } else if (lastViewComingDown != null) {
+                        top = lastViewComingDown.get().getBottom() + (int) lastViewComingDown.get().getTranslationY();
+                        bottom = firstViewComingUp.get().getTop() + (int) firstViewComingUp.get().getTranslationY();
+                    } else if (lastViewComingDown.isPresent()) {
                         // views are going down to fill the void
-                        top = lastViewComingDown.getBottom() + (int) lastViewComingDown.getTranslationY();
-                        bottom = lastViewComingDown.getBottom();
-                    } else if (firstViewComingUp != null) {
+                        top = lastViewComingDown.get().getBottom() + (int) lastViewComingDown.get().getTranslationY();
+                        bottom = lastViewComingDown.get().getBottom();
+                    } else if (firstViewComingUp.isPresent()) {
                         // views are coming up to fill the void
-                        top = firstViewComingUp.getTop();
-                        bottom = firstViewComingUp.getTop() + (int) firstViewComingUp.getTranslationY();
+                        top = firstViewComingUp.get().getTop();
+                        bottom = firstViewComingUp.get().getTop() + (int) firstViewComingUp.get().getTranslationY();
                     }
 
                     background.setBounds(left, top, right, bottom);
