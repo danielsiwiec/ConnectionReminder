@@ -1,18 +1,18 @@
 package com.dansiwiec.connectionremider;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 
+import com.dansiwiec.connectionremider.persistance.FileStorageHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.List;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -29,15 +29,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.recycler_view);
-        SwipeListUtils.setUpRecyclerView(mRecyclerView, this);
+        FileStorageHelper fileStorageHelper = new FileStorageHelper(getFilesDir());
+        SwipeListUtils.setUpRecyclerView(mRecyclerView, this, fileStorageHelper);
 
         FloatingActionButton addPersonButton = findViewById(R.id.add_person);
-        addPersonButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showAddItemDialog(MainActivity.this);
-            }
-        });
+        addPersonButton.setOnClickListener(view -> showAddItemDialog(MainActivity.this));
     }
 
     private void showAddItemDialog(Context c) {

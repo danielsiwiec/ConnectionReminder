@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.dansiwiec.connectionremider.persistance.FileStorageHelper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,23 +23,18 @@ import androidx.recyclerview.widget.RecyclerView;
 public class TestAdapter extends RecyclerView.Adapter {
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000; // 3sec
+    private final FileStorageHelper fileStorageHelper;
 
     List<String> items;
     List<String> itemsPendingRemoval;
-    int lastInsertedIndex; // so we can add some more items for testing purposes
 
     private Handler handler = new Handler(); // hanlder for running delayed runnables
     HashMap<String, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
 
-    public TestAdapter() {
-        items = new ArrayList<>();
+    public TestAdapter(FileStorageHelper fileStorageHelper) {
+        items = fileStorageHelper.readItems();
         itemsPendingRemoval = new ArrayList<>();
-        // let's generate some items
-        lastInsertedIndex = 15;
-        // this should give us a couple of screens worth
-        for (int i = 1; i <= lastInsertedIndex; i++) {
-            items.add("Item " + i);
-        }
+        this.fileStorageHelper = fileStorageHelper;
     }
 
     @Override
@@ -99,6 +96,8 @@ public class TestAdapter extends RecyclerView.Adapter {
         }
         if (items.contains(item)) {
             items.remove(position);
+            fileStorageHelper.writeItems(items);
+
             notifyItemRemoved(position);
         }
     }
@@ -113,6 +112,7 @@ public class TestAdapter extends RecyclerView.Adapter {
         if (items.contains(item)) {
             items.remove(position);
             items.add(item);
+            fileStorageHelper.writeItems(items);
             notifyItemChanged(position);
             notifyItemMoved(position, items.size() - 1);
         }
@@ -120,6 +120,7 @@ public class TestAdapter extends RecyclerView.Adapter {
 
     public void addItem(String person) {
         items.add(person);
+        fileStorageHelper.writeItems(items);
         notifyItemInserted(items.size() - 1);
     }
 
