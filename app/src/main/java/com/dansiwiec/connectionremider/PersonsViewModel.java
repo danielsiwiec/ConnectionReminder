@@ -1,6 +1,6 @@
 package com.dansiwiec.connectionremider;
 
-import com.dansiwiec.connectionremider.persistance.PersonsRepository;
+import com.dansiwiec.connectionremider.persistance.PersonsFileRepository;
 
 import java.util.List;
 
@@ -11,14 +11,16 @@ import androidx.lifecycle.ViewModel;
 public class PersonsViewModel extends ViewModel {
 
     private MutableLiveData<List<String>> persons;
-    private PersonsRepository repository;
+    private PersonsFileRepository repository;
 
-    public PersonsViewModel(PersonsRepository repository) {
+    public PersonsViewModel(PersonsFileRepository repository) {
         this.repository = repository;
     }
 
     public void init() {
-        this.persons = repository.listAll();
+        final MutableLiveData<List<String>> data = new MutableLiveData<>();
+        data.setValue(repository.listAll());
+        this.persons = data;
     }
 
     public void add(String person) {

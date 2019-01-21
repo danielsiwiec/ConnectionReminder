@@ -6,7 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
-import com.dansiwiec.connectionremider.persistance.PersonsRepository;
+import com.dansiwiec.connectionremider.persistance.PersonsFileRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.appcompat.app.AlertDialog;
@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.recycler_view);
 
-        PersonsRepository repository = new PersonsRepository(getFilesDir());
+        PersonsFileRepository repository = new PersonsFileRepository(getFilesDir());
         viewModel = new PersonsViewModel(repository);
         viewModel.init();
 
