@@ -2,9 +2,6 @@ package com.dansiwiec.connectionremider;
 
 import android.graphics.Color;
 
-import com.dansiwiec.connectionremider.persistance.FileStorageHelper;
-
-import java.util.List;
 import java.util.function.Consumer;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,9 +16,13 @@ import static com.dansiwiec.connectionremider.ItemTouchBuilder.itemTouchBuilder;
 
 public class SwipeListUtils {
 
-    public static void setUpRecyclerView(RecyclerView mRecyclerView, AppCompatActivity activity, FileStorageHelper fileStorageHelper) {
+    public static void setUpRecyclerView(RecyclerView mRecyclerView, AppCompatActivity activity, PersonsViewModel viewModel) {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(activity));
-        mRecyclerView.setAdapter(new TestAdapter(fileStorageHelper));
+        TestAdapter adapter = new TestAdapter(viewModel);
+        viewModel.list().observe(activity, persons -> {
+            adapter.setData(persons);
+        });
+        mRecyclerView.setAdapter(adapter);
         mRecyclerView.setHasFixedSize(true);
         setUpItemTouchHelper(mRecyclerView, activity);
     }

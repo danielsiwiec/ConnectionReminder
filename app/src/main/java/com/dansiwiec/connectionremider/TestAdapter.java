@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.dansiwiec.connectionremider.persistance.FileStorageHelper;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,18 +21,22 @@ import androidx.recyclerview.widget.RecyclerView;
 public class TestAdapter extends RecyclerView.Adapter {
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000; // 3sec
-    private final FileStorageHelper fileStorageHelper;
+    private final PersonsViewModel viewModel;
 
-    List<String> items;
+    private List<String> persons;
     List<String> itemsPendingRemoval;
 
     private Handler handler = new Handler(); // hanlder for running delayed runnables
     HashMap<String, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
 
-    public TestAdapter(FileStorageHelper fileStorageHelper) {
-        items = fileStorageHelper.readItems();
+    public TestAdapter(PersonsViewModel viewModel) {
         itemsPendingRemoval = new ArrayList<>();
-        this.fileStorageHelper = fileStorageHelper;
+        this.viewModel = viewModel;
+    }
+
+    public void setData(List<String> persons) {
+        this.persons = persons;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -45,7 +47,7 @@ public class TestAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         TestViewHolder viewHolder = (TestViewHolder) holder;
-        final String item = items.get(position);
+        final String item = persons.get(position);
 
         if (itemsPendingRemoval.contains(item)) {
             // we need to show the "undo" state of the row
@@ -59,7 +61,7 @@ public class TestAdapter extends RecyclerView.Adapter {
                 if (pendingRemovalRunnable != null) handler.removeCallbacks(pendingRemovalRunnable);
                 itemsPendingRemoval.remove(item);
                 // this will rebind the row in "normal" state
-                notifyItemChanged(items.indexOf(item));
+                notifyItemChanged(persons.indexOf(item));
             });
         } else {
             // we need to show the "normal" state
@@ -73,55 +75,38 @@ public class TestAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return persons.size();
     }
 
     public void pendingRemoval(int position) {
-        final String item = items.get(position);
-        if (!itemsPendingRemoval.contains(item)) {
-            itemsPendingRemoval.add(item);
+        final String person = persons.get(position);
+        if (!itemsPendingRemoval.contains(person)) {
+            itemsPendingRemoval.add(person);
             // this will redraw row in "undo" state
             notifyItemChanged(position);
             // let's create, store and post a runnable to remove the item
-            Runnable pendingRemovalRunnable = () -> remove(items.indexOf(item));
+            Runnable pendingRemovalRunnable = () -> remove(person);
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
-            pendingRunnables.put(item, pendingRemovalRunnable);
+            pendingRunnables.put(person, pendingRemovalRunnable);
         }
     }
 
-    public void remove(int position) {
-        String item = items.get(position);
-        if (itemsPendingRemoval.contains(item)) {
-            itemsPendingRemoval.remove(item);
+    public void remove(String person) {
+        if (itemsPendingRemoval.contains(person)) {
+            itemsPendingRemoval.remove(person);
         }
-        if (items.contains(item)) {
-            items.remove(position);
-            fileStorageHelper.writeItems(items);
-
-            notifyItemRemoved(position);
+        if (viewModel.list().getValue().contains(person)) {
+            viewModel.remove(person);
         }
     }
 
     public boolean isPendingRemoval(int position) {
-        String item = items.get(position);
+        String item = persons.get(position);
         return itemsPendingRemoval.contains(item);
     }
 
     public void pushToBottom(int position) {
-        String item = items.get(position);
-        if (items.contains(item)) {
-            items.remove(position);
-            items.add(item);
-            fileStorageHelper.writeItems(items);
-            notifyItemChanged(position);
-            notifyItemMoved(position, items.size() - 1);
-        }
-    }
-
-    public void addItem(String person) {
-        items.add(person);
-        fileStorageHelper.writeItems(items);
-        notifyItemInserted(items.size() - 1);
+        viewModel.pushToBottom(position);
     }
 
     /**

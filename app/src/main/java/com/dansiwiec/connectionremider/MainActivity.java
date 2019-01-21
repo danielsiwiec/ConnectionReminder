@@ -6,10 +6,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
-import com.dansiwiec.connectionremider.persistance.FileStorageHelper;
+import com.dansiwiec.connectionremider.persistance.PersonsRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.List;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,14 +21,19 @@ import androidx.recyclerview.widget.RecyclerView;
 public class MainActivity extends AppCompatActivity {
 
     RecyclerView mRecyclerView;
+    private PersonsViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.recycler_view);
-        FileStorageHelper fileStorageHelper = new FileStorageHelper(getFilesDir());
-        SwipeListUtils.setUpRecyclerView(mRecyclerView, this, fileStorageHelper);
+
+        PersonsRepository repository = new PersonsRepository(getFilesDir());
+        viewModel = new PersonsViewModel(repository);
+        viewModel.init();
+
+        SwipeListUtils.setUpRecyclerView(mRecyclerView, this, viewModel);
 
         FloatingActionButton addPersonButton = findViewById(R.id.add_person);
         addPersonButton.setOnClickListener(view -> showAddItemDialog(MainActivity.this));
@@ -43,8 +46,7 @@ public class MainActivity extends AppCompatActivity {
                 .setView(taskEditText)
                 .setPositiveButton("Add", (dialog1, which) -> {
                     String person = String.valueOf(taskEditText.getText());
-                    TestAdapter adapter = (TestAdapter) mRecyclerView.getAdapter();
-                    adapter.addItem(person);
+                    viewModel.add(person);
                 })
                 .setNegativeButton("Cancel", null)
                 .create();
